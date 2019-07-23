@@ -202,13 +202,6 @@ pkg_tar(
 )
 
 pkg_tar(
-    name = "test-tar-files_dict",
-    files = {
-        ":etc/nsswitch.conf": "not-etc/mapped-filename.conf",
-    },
-)
-
-pkg_tar(
     name = "test-tar-empty_files",
     empty_files = [
         "/a",
@@ -249,7 +242,6 @@ sh_test(
         ":test-tar-bz2.tar.bz2",
         ":test-tar-empty_dirs.tar",
         ":test-tar-empty_files.tar",
-        ":test-tar-files_dict.tar",
         ":test-tar-gz.tar.gz",
         ":test-tar-inclusion-.tar",
         ":test-tar-inclusion-bz2.tar",

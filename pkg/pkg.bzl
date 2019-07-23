@@ -86,12 +86,6 @@ def _pkg_tar_impl(ctx):
         "--file=%s=%s" % (_quote(f.path), _remap(remap_paths, dest_path(f, data_path)))
         for f in file_inputs
     ]
-    for target, f_dest_path in ctx.attr.files.items():
-        target_files = target.files.to_list()
-        if len(target_files) != 1:
-            fail("Each input must describe exactly one file.", attr = "files")
-        file_inputs += target_files
-        args += ["--file=%s=%s" % (_quote(target_files[0].path), f_dest_path)]
     if ctx.attr.modes:
         args += [
             "--modes=%s=%s" % (_quote(key), ctx.attr.modes[key])
@@ -269,7 +263,6 @@ pkg_tar_impl = rule(
         "package_dir_file": attr.label(allow_single_file = True),
         "deps": attr.label_list(allow_files = tar_filetype),
         "srcs": attr.label_list(allow_files = True),
-        "files": attr.label_keyed_string_dict(allow_files = True),
         "mode": attr.string(default = "0555"),
         "modes": attr.string_dict(),
         "mtime": attr.int(default = -1),
@@ -299,16 +292,6 @@ pkg_tar_impl = rule(
 )
 
 def pkg_tar(**kwargs):
-    # Compatibility with older versions of pkg_tar that define files as
-    # a flat list of labels.
-    if "srcs" not in kwargs:
-        if "files" in kwargs:
-            if not hasattr(kwargs["files"], "items"):
-                label = "%s//%s:%s" % (native.repository_name(), native.package_name(), kwargs["name"])
-                print("%s: you provided a non dictionary to the pkg_tar `files` attribute. " % (label,) +
-                      "This attribute was renamed to `srcs`. " +
-                      "Consider renaming it in your BUILD file.")
-                kwargs["srcs"] = kwargs.pop("files")
     extension = kwargs.get("extension") or "tar"
     pkg_tar_impl(
         out = kwargs["name"] + "." + extension,
