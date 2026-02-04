@@ -395,11 +395,6 @@ def main():
         help="Save tree metadata as JSON. Takes single directory/tar/JSON argument."
     )
     parser.add_argument(
-        "paths",
-        nargs="*",
-        help="Paths (directory, tar, or JSON). 1 for --save, 2 for comparison."
-    )
-    parser.add_argument(
         "--max_allowed_absolute_increase",
         type=int,
         default=0,
@@ -441,6 +436,11 @@ def main():
         action="append",
         default=[],
         help="Exclude files matching this regex pattern (can be specified multiple times)"
+    )
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        help="Paths (directory, tar, or JSON). 1 for --save, 2 for comparison."
     )
 
     args = parser.parse_args()
