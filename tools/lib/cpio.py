@@ -178,7 +178,7 @@ class CpioReader(object):
             file_content = self.stream.read(data_size)
             symlink_target = file_content[: file_size].decode(
                 'utf-8', errors='replace')
-            data_size = -1  # signal that we have read the conent.
+            data_size = -1  # signal that we have read the content.
 
         info = FileInfo(
             path=path,

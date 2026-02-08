@@ -5,7 +5,7 @@ import json
 from tools.lib.tree_reader import FileInfo, TreeReader
 
 
-def write_tree(output_file: str, items) -> None: 
+def write_tree(output_file: str, items) -> None:
     # Write JSON
     with open(output_file, 'w') as f:
         json.dump(items, f, indent=2)
