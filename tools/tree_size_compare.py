@@ -339,10 +339,8 @@ def print_report(results: dict) -> int:
         has_diffs = True
         print("\nFiles with size changes exceeding threshold:")
         for path, expected_size, got_size, message in results["size_changed"]:
-            print(f"  {path}")
-            print(f"    expected: {expected_size} bytes")
-            print(f"    got:      {got_size} bytes")
-            print(f"    {message}")
+            print(f"  {path}: {message}")
+            print(f"    expected: {expected_size} bytes, got: {got_size} bytes")
 
     if not has_diffs:
         print("\nTrees are identical.")
