@@ -5,10 +5,11 @@ import json
 from tools.lib.tree_reader import FileInfo, TreeReader
 
 
-def write_tree(output_file: str, items) -> None: 
+def write_tree(output_file: str, items) -> None:
     # Write JSON
-    with open(output_file, 'w') as f:
+    with open(output_file, "w") as f:
         json.dump(items, f, indent=2)
+
 
 def dict_to_fileinfo(d: dict) -> FileInfo:
     """Convert dict (from JSON) back to FileInfo.
@@ -16,14 +17,14 @@ def dict_to_fileinfo(d: dict) -> FileInfo:
     Defaults uid and gid to 0 if not present (optimization).
     """
     return FileInfo(
-        path=d["path"].removeprefix('./'),
+        path=d["path"].removeprefix("./"),
         size=d.get("size", 0),
         mode=int(d["mode"], 8),  # Convert octal string to int
-        uid=d.get("uid", 0),     # Default to 0 if omitted
-        gid=d.get("gid", 0),     # Default to 0 if omitted
+        uid=d.get("uid", 0),  # Default to 0 if omitted
+        gid=d.get("gid", 0),  # Default to 0 if omitted
         is_dir=d.get("is_dir", False),
         is_symlink=d.get("is_symlink", False),
-        symlink_target=d.get("target")
+        symlink_target=d.get("target"),
     )
 
 
@@ -38,7 +39,7 @@ class SavedTreeReader(TreeReader):
     def _load_json(self, json_path: str):
         """Load items from JSON file."""
         try:
-            with open(json_path, 'r') as f:
+            with open(json_path, "r") as f:
                 data = json.load(f)
 
             if not isinstance(data, list):

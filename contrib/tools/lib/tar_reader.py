@@ -8,7 +8,7 @@ from tools.lib.tree_reader import FileInfo, TreeReader
 class TarReader(TreeReader):
     """Reader for tar archives (.tar, .tar.gz, .tar.bz2, .tar.xz, .tgz)."""
 
-    def __init__(self, tar_path: str=None, tar_stream=None):
+    def __init__(self, tar_path: str = None, tar_stream=None):
         """Initialize TarReader with either a file path or file-like object.
 
         Args:
@@ -21,9 +21,9 @@ class TarReader(TreeReader):
             raise ValueError("Cannot provide both tar_path and tar_stream")
 
         if tar_path is not None:
-            self._tar = tarfile.open(tar_path, mode='r|*')
+            self._tar = tarfile.open(tar_path, mode="r|*")
         else:
-            self._tar = tarfile.open(fileobj=tar_stream, mode='r|*')
+            self._tar = tarfile.open(fileobj=tar_stream, mode="r|*")
         self._iter = iter(self._tar)
         self.done = False
 
@@ -36,10 +36,10 @@ class TarReader(TreeReader):
             except StopIteration:
                 self.done = True
                 return None
-            if tarinfo.name and tarinfo.name != './':
+            if tarinfo.name and tarinfo.name != "./":
                 break
 
-        path = tarinfo.name.removeprefix('./')
+        path = tarinfo.name.removeprefix("./")
         is_symlink = tarinfo.issym() or tarinfo.islnk()
         is_dir = tarinfo.isdir() and not is_symlink
 

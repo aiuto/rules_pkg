@@ -14,9 +14,10 @@ def lscpio(cpio):
         if not info:
             break
         if info.is_symlink:
-            print(f"{info.path}: {info.uid}/{info.gid}, mode:{info.mode}, {info.size} -> {info.symlink_target}")
+            print(
+                f"{info.path}: {info.uid}/{info.gid}, mode:{info.mode}, {info.size} -> {info.symlink_target}"
+            )
         else:
-         
             print(f"{info.path}: {info.uid}/{info.gid}, mode:{info.mode}, {info.size}")
 
 

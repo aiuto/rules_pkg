@@ -49,5 +49,6 @@ def main(args):
     if out != sys.stdout:
         out.close()
 
+
 if __name__ == "__main__":
-   main(sys.argv)
+    main(sys.argv)

@@ -5,7 +5,6 @@ from in_process_pipe import InProcessPipe
 
 
 class InProcessPipeTest(unittest.TestCase):
-
     def test_basic_write_read(self):
         p = InProcessPipe()
         p.write(b"hello")
@@ -71,7 +70,7 @@ class InProcessPipeTest(unittest.TestCase):
 
         def writer():
             for i in range(0, len(expected), 100):
-                p.write(expected[i:i+100])
+                p.write(expected[i : i + 100])
             p.close()
 
         t = threading.Thread(target=writer)
@@ -79,7 +78,6 @@ class InProcessPipeTest(unittest.TestCase):
         result = p.read()
         t.join()
         self.assertEqual(result, expected)
-
 
     def test_read_blocks_until_n_bytes(self):
         p = InProcessPipe()

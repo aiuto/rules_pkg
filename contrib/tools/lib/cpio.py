@@ -137,7 +137,7 @@ class CpioReader(object):
         uid = self.read_ascii_int(size=8, base=16)
         gid = self.read_ascii_int(size=8, base=16)
         _nlinks = self.read_ascii_int(size=8, base=16)
-        mod_time = self.read_ascii_int(size=8, base=16)
+        _mod_time = self.read_ascii_int(size=8, base=16)
         file_size = self.read_ascii_int(size=8, base=16)
         _dev_major = self.read_ascii_int(size=8, base=16)
         _dev_minor = self.read_ascii_int(size=8, base=16)
@@ -148,14 +148,14 @@ class CpioReader(object):
 
         # Determine file type from mode (bits 12-14 contain file type)
         file_type = mode & 0o170000
-        is_dir = (file_type == 0o040000)  # S_IFDIR
-        is_symlink = (file_type == 0o120000)  # S_IFLNK
+        is_dir = file_type == 0o040000  # S_IFDIR
+        is_symlink = file_type == 0o120000  # S_IFLNK
 
         at = self.stream.tell()
         path_block_len = 4 * ((at + path_len + 3) // 4) - at
         raw_path = self.stream.read(path_block_len)
         try:
-            path = raw_path[: (path_len - 1)].decode("utf-8").removeprefix('./')
+            path = raw_path[: (path_len - 1)].decode("utf-8").removeprefix("./")
         except Exception:
             path = str(raw_path[: (path_len - 1)])
         if DEBUG > 1:
@@ -176,9 +176,8 @@ class CpioReader(object):
         symlink_target = None
         if is_symlink and file_size > 0:
             file_content = self.stream.read(data_size)
-            symlink_target = file_content[: file_size].decode(
-                'utf-8', errors='replace')
-            data_size = -1  # signal that we have read the conent.
+            symlink_target = file_content[:file_size].decode("utf-8", errors="replace")
+            data_size = -1  # signal that we have read the content.
 
         info = FileInfo(
             path=path,
@@ -189,13 +188,9 @@ class CpioReader(object):
             is_dir=is_dir,
             is_symlink=is_symlink,
             symlink_target=symlink_target,
-
             # TODO: Consider dropping these, they are unneed.
             inode=inode,
             data_size=data_size,
-
-            # TODO
-            # mod_time=mod_time,
         )
         return info, data_size
 

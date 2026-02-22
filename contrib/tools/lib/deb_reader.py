@@ -24,11 +24,13 @@ class ArReader:
     def _read_ar_archive(self):
         """Read ar archive and extract data.tar.xz."""
         try:
-            with open(self.ar_path, 'rb') as f:
+            with open(self.ar_path, "rb") as f:
                 # Check magic bytes
                 magic = f.read(8)
                 if magic != self.AR_MAGIC:
-                    raise ValueError(f"Not a valid ar archive: expected magic {self.AR_MAGIC}, got {magic}")
+                    raise ValueError(
+                        f"Not a valid ar archive: expected magic {self.AR_MAGIC}, got {magic}"
+                    )
 
                 # Read entries until we find data.tar.*
                 while True:
@@ -44,7 +46,9 @@ class ArReader:
                     else:
                         # Skip this entry
                         # Entries are padded to even boundaries
-                        padded_size = entry_size if entry_size % 2 == 0 else entry_size + 1
+                        padded_size = (
+                            entry_size if entry_size % 2 == 0 else entry_size + 1
+                        )
                         f.seek(padded_size, 1)  # Relative seek
 
                 if self.data_tar is None:
@@ -76,14 +80,16 @@ class ArReader:
             return None, None
 
         # Extract filename (remove trailing spaces/nulls/slash)
-        filename = header[0:16].rstrip(b' \0/').decode('ascii')
+        filename = header[0:16].rstrip(b" \0/").decode("ascii")
 
         # Extract file size (decimal string)
         try:
-            size_str = header[46:58].rstrip(b' ').decode('ascii')
+            size_str = header[46:58].rstrip(b" ").decode("ascii")
             size = int(size_str)
         except (ValueError, UnicodeDecodeError):
-            raise ValueError(f"Invalid ar entry header: can't parse size from {header[46:58]}")
+            raise ValueError(
+                f"Invalid ar entry header: can't parse size from {header[46:58]}"
+            )
 
         return filename, size
 
@@ -94,13 +100,15 @@ class ArReader:
 
         name = self.data_tar_name
         try:
-            if name.endswith('.xz') or name.endswith('.lzma'):
+            if name.endswith(".xz") or name.endswith(".lzma"):
                 decompressed = lzma.decompress(self.data_tar)
-            elif name.endswith('.gz'):
+            elif name.endswith(".gz"):
                 import gzip
+
                 decompressed = gzip.decompress(self.data_tar)
-            elif name.endswith('.bz2'):
+            elif name.endswith(".bz2"):
                 import bz2
+
                 decompressed = bz2.decompress(self.data_tar)
             else:
                 decompressed = self.data_tar

@@ -6,7 +6,7 @@ This is toolkit for building need specific tools.  It consists of:
 - Some reference implementation tools to show how the readers work.
 
 Much of the code here is AI generated. The ar, deb, rpm and cpio readers
-were hand crafted by a human.  
+were hand crafted by a human.
 
 ## Tools
 

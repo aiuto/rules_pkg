@@ -1,4 +1,3 @@
-
 import gzip
 import lzma
 import sys
@@ -6,22 +5,23 @@ import tarfile
 
 PORTABLE_MTIME = 946684800  # 2000-01-01 00:00:00.000 UTC
 
-class TarReader():
+
+class TarReader:
     """Testing for pkg_tar rule."""
 
     def __init__(self, stream, compress=None):
         if compress == "gz":
-            self.stream = gzip.GzipFile(fileobj=stream, mode='r')
+            self.stream = gzip.GzipFile(fileobj=stream, mode="r")
         elif compress == "xz":
-            self.stream = lzma.LZMAFile(filename=stream, mode='r')
+            self.stream = lzma.LZMAFile(filename=stream, mode="r")
         else:
             self.stream = stream
-        self.tarfile = tarfile.TarFile(fileobj=self.stream, mode='r')
+        self.tarfile = tarfile.TarFile(fileobj=self.stream, mode="r")
 
     def next(self, return_content=False):
         info = self.tarfile.next()
         return info
-  
+
 
 def main(args):
     with open(args[1], "rb") as inp:
@@ -33,6 +33,7 @@ def main(args):
                 break
             size += info.size
     print(f"Total size: {size}, {size / 1000000} MiB")
+
 
 if __name__ == "__main__":
     main(sys.argv)

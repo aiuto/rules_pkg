@@ -35,7 +35,7 @@ class FileSystemReader(TreeReader):
                     gid=stat_info.st_gid,
                     is_dir=not is_symlink,
                     is_symlink=is_symlink,
-                    symlink_target=os.readlink(full_path) if is_symlink else None
+                    symlink_target=os.readlink(full_path) if is_symlink else None,
                 )
 
             # Yield files
@@ -53,7 +53,7 @@ class FileSystemReader(TreeReader):
                     gid=stat_info.st_gid,
                     is_dir=False,
                     is_symlink=is_symlink,
-                    symlink_target=os.readlink(full_path) if is_symlink else ""
+                    symlink_target=os.readlink(full_path) if is_symlink else "",
                 )
 
     def next(self) -> FileInfo:

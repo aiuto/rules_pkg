@@ -3,12 +3,14 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
+
 @dataclass
 class FileInfo:
     """Information about a file or directory."""
-    path: str     # relative path
-    size: int     # 0 for directories and symlinks
-    mode: int     # octal mode
+
+    path: str  # relative path
+    size: int  # 0 for directories and symlinks
+    mode: int  # octal mode
     uid: int = 0  # user id
     gid: int = 0  # group id
     is_dir: bool = False
@@ -22,6 +24,7 @@ class FileInfo:
 # ============================================================================
 # TreeReader Interface and Implementations
 # ============================================================================
+
 
 class TreeReader(ABC):
     """Abstract base class for reading tree metadata from various sources."""

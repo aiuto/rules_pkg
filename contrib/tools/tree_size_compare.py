@@ -1,14 +1,9 @@
 #!/usr/bin/env python3
 
 import argparse
-import io
-import json
 import os
 import re
 import sys
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from pathlib import Path
 
 from tools.lib.tree_reader import FileInfo, TreeReader
 from tools.lib.deb_reader import DebReader
@@ -40,13 +35,13 @@ class InputFactory:
         Raises:
             ValueError: If input type cannot be determined or is invalid
         """
-        if path.endswith('.json'):
+        if path.endswith(".json"):
             return SavedTreeReader(path)
-        elif path.endswith('.deb'):
+        elif path.endswith(".deb"):
             return DebReader(path)
-        elif path.endswith('.rpm'):
+        elif path.endswith(".rpm"):
             return RpmReader(path)
-        elif path.endswith(('.tar', '.tar.gz', '.tar.bz2', '.tar.xz', '.tgz')):
+        elif path.endswith((".tar", ".tar.gz", ".tar.bz2", ".tar.xz", ".tgz")):
             return TarReader(path)
         elif os.path.isdir(path):
             return FileSystemReader(path)
@@ -57,6 +52,7 @@ class InputFactory:
 # ============================================================================
 # Utility Functions
 # ============================================================================
+
 
 def format_mode(mode: int) -> str:
     """Format mode as octal string, preserving file type bits (e.g., '100644')."""
@@ -97,7 +93,9 @@ def fileinfo_to_dict(info: FileInfo) -> dict:
     return result
 
 
-def should_include_path(path: str, include_patterns: list, exclude_patterns: list) -> bool:
+def should_include_path(
+    path: str, include_patterns: list, exclude_patterns: list
+) -> bool:
     """
     Check if a path should be included based on include/exclude filters.
 
@@ -153,13 +151,19 @@ def check_size_threshold(expected_size: int, got_size: int, flags: dict) -> tupl
 
     # Check absolute increase
     if max_abs_increase > 0 and size_diff > max_abs_increase:
-        return False, f"size increased by {size_diff} bytes (max allowed: {max_abs_increase})"
+        return (
+            False,
+            f"size increased by {size_diff} bytes (max allowed: {max_abs_increase})",
+        )
 
     # Check percent increase
     if expected_size > 0:
         pct_change = (size_diff / expected_size) * 100
         if pct_change > max_pct_increase:
-            return False, f"size increased by {pct_change:.2f}% (max allowed: {max_pct_increase}%)"
+            return (
+                False,
+                f"size increased by {pct_change:.2f}% (max allowed: {max_pct_increase}%)",
+            )
 
     return True, ""
 
@@ -167,6 +171,7 @@ def check_size_threshold(expected_size: int, got_size: int, flags: dict) -> tupl
 # ============================================================================
 # Comparison and Reporting
 # ============================================================================
+
 
 def load_tree_from_reader(reader: TreeReader) -> dict:
     """
@@ -227,7 +232,11 @@ def stream_compare(expected_dict: dict, got_reader: TreeReader, flags: dict) -> 
 
         if got_item.path not in expected_dict:
             # File in got but not in expected
-            file_type = "symlink" if got_item.is_symlink else ("directory" if got_item.is_dir else "file")
+            file_type = (
+                "symlink"
+                if got_item.is_symlink
+                else ("directory" if got_item.is_dir else "file")
+            )
             results["only_in_got"].append((got_item.path, file_type))
             continue
 
@@ -241,35 +250,34 @@ def stream_compare(expected_dict: dict, got_reader: TreeReader, flags: dict) -> 
         # If both are symlinks, check if target changed
         if exp_item.is_symlink and got_item.is_symlink:
             if exp_item.symlink_target != got_item.symlink_target:
-                results["symlink_target_changed"].append((
-                    exp_item.path,
-                    exp_item.symlink_target,
-                    got_item.symlink_target
-                ))
+                results["symlink_target_changed"].append(
+                    (exp_item.path, exp_item.symlink_target, got_item.symlink_target)
+                )
 
         # If symlink status changed
         elif exp_item.is_symlink != got_item.is_symlink:
-            results["metadata_changed"].append((
-                exp_item.path,
-                f"symlink status changed: {exp_item.is_symlink} -> {got_item.is_symlink}"
-            ))
+            results["metadata_changed"].append(
+                (
+                    exp_item.path,
+                    f"symlink status changed: {exp_item.is_symlink} -> {got_item.is_symlink}",
+                )
+            )
 
         # If both are regular files, check size
         elif not exp_item.is_dir and not exp_item.is_symlink:
             passed, msg = check_size_threshold(exp_item.size, got_item.size, flags)
             if not passed:
-                results["size_changed"].append((
-                    exp_item.path,
-                    exp_item.size,
-                    got_item.size,
-                    msg
-                ))
+                results["size_changed"].append(
+                    (exp_item.path, exp_item.size, got_item.size, msg)
+                )
 
         # Check metadata for all types (mode, and optionally uid/gid)
         compare_uid_gid = flags.get("compare_uid_gid", True)
         changes = []
         if exp_item.mode != got_item.mode:
-            changes.append(f"mode {format_mode(exp_item.mode)} -> {format_mode(got_item.mode)}")
+            changes.append(
+                f"mode {format_mode(exp_item.mode)} -> {format_mode(got_item.mode)}"
+            )
         if compare_uid_gid:
             if exp_item.uid != got_item.uid:
                 changes.append(f"uid {exp_item.uid} -> {got_item.uid}")
@@ -286,7 +294,11 @@ def stream_compare(expected_dict: dict, got_reader: TreeReader, flags: dict) -> 
         if not should_include_path(exp_path, include_patterns, exclude_patterns):
             continue
 
-        file_type = "symlink" if exp_item.is_symlink else ("directory" if exp_item.is_dir else "file")
+        file_type = (
+            "symlink"
+            if exp_item.is_symlink
+            else ("directory" if exp_item.is_dir else "file")
+        )
         results["only_in_expected"].append((exp_path, file_type))
 
     return results
@@ -382,6 +394,7 @@ def save_tree(input_path: str, output_file: str) -> int:
 # Main
 # ============================================================================
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="Compare two directory trees (directories, tars, or JSON) and report differences."
@@ -390,55 +403,55 @@ def main():
         "--save",
         type=str,
         metavar="OUTPUT_FILE",
-        help="Save tree metadata as JSON. Takes single directory/tar/JSON argument."
+        help="Save tree metadata as JSON. Takes single directory/tar/JSON argument.",
     )
     parser.add_argument(
         "--max_allowed_absolute_increase",
         type=int,
         default=0,
-        help="Maximum allowed absolute increase in bytes (0 = no check, default: 0)"
+        help="Maximum allowed absolute increase in bytes (0 = no check, default: 0)",
     )
     parser.add_argument(
         "--max_allowed_percent_increase",
         type=float,
         default=1,
-        help="Maximum allowed percent increase in file size (default: 1)"
+        help="Maximum allowed percent increase in file size (default: 1)",
     )
     parser.add_argument(
         "--show_decreases",
         type=bool,
         default=True,
         action=argparse.BooleanOptionalAction,
-        help="Check size decreases as well (default: True)"
+        help="Check size decreases as well (default: True)",
     )
     parser.add_argument(
         "--minimum_compare_size",
         type=int,
         default=500,
-        help="Minimum file size in bytes to check for size changes (default: 500)"
+        help="Minimum file size in bytes to check for size changes (default: 500)",
     )
     parser.add_argument(
         "--compare_uid_gid",
         default=None,
         action=argparse.BooleanOptionalAction,
-        help="Compare uid/gid metadata (default: True unless either input is a filesystem directory)"
+        help="Compare uid/gid metadata (default: True unless either input is a filesystem directory)",
     )
     parser.add_argument(
         "--include",
         action="append",
         default=[],
-        help="Include only files matching this regex pattern (can be specified multiple times)"
+        help="Include only files matching this regex pattern (can be specified multiple times)",
     )
     parser.add_argument(
         "--exclude",
         action="append",
         default=[],
-        help="Exclude files matching this regex pattern (can be specified multiple times)"
+        help="Exclude files matching this regex pattern (can be specified multiple times)",
     )
     parser.add_argument(
         "paths",
         nargs="*",
-        help="Paths (directory, tar, or JSON). 1 for --save, 2 for comparison."
+        help="Paths (directory, tar, or JSON). 1 for --save, 2 for comparison.",
     )
 
     args = parser.parse_args()
@@ -452,7 +465,9 @@ def main():
     else:
         # Comparison mode: requires exactly two inputs
         if len(args.paths) != 2:
-            parser.error("Comparison mode requires exactly two path arguments (expected got)")
+            parser.error(
+                "Comparison mode requires exactly two path arguments (expected got)"
+            )
 
         expected_path, got_path = args.paths
 
@@ -473,7 +488,8 @@ def main():
                 # Default: skip uid/gid comparison if either input is a filesystem
                 compare_uid_gid = not (
                     InputFactory.is_filesystem(expected_path)
-                    or InputFactory.is_filesystem(got_path))
+                    or InputFactory.is_filesystem(got_path)
+                )
 
             # Compare
             flags = {

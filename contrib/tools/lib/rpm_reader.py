@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import io
 import threading
 
 from tools.lib.cpio import CpioReader
@@ -23,7 +22,7 @@ class RpmReader(TreeReader):
     def _unpack_rpm(self):
         """Extract metadata from RPM file."""
         # Open RPM file and parse headers
-        with open(self.rpm_path, 'rb') as rpm_file:
+        with open(self.rpm_path, "rb") as rpm_file:
             rpm_reader = RpmFileReader(stream=rpm_file, verbose=False)
             rpm_reader.read_headers()
             # Stream CPIO data out
