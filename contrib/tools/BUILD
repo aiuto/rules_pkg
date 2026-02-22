@@ -42,7 +42,7 @@ py_binary(
         "cpio-ls.py",
     ],
     deps = [
-        "//tools/lib:cpio",
+        "//contrib/tools/lib:cpio",
     ],
 )
 
@@ -52,7 +52,7 @@ py_binary(
         "rpm2cpio.py",
     ],
     deps = [
-        "//tools/lib:rpm_file",
+        "//contrib/tools/lib:rpm_file",
     ],
 )
 
@@ -62,11 +62,11 @@ py_binary(
         "tree_size_compare.py",
     ],
     deps = [
-        "//tools/lib:deb_reader",
-        "//tools/lib:fs_reader",
-        "//tools/lib:rpm_reader",
-        "//tools/lib:saved_tree",
-        "//tools/lib:tar_reader",
-        "//tools/lib:tree_reader",
+        "//contrib/tools/lib:deb_reader",
+        "//contrib/tools/lib:fs_reader",
+        "//contrib/tools/lib:rpm_reader",
+        "//contrib/tools/lib:saved_tree",
+        "//contrib/tools/lib:tar_reader",
+        "//contrib/tools/lib:tree_reader",
     ],
 )
