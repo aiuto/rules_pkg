@@ -23,7 +23,7 @@ package(default_applicable_licenses = ["//:license"])
 filegroup(
     name = "reference_files",
     srcs = glob(["reference_tree/**"]),
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # Package the reference files with explicit attributes for reproducibility
@@ -67,7 +67,7 @@ pkg_tar(
         ":reference_link",
         ":reference_pkg_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # Compressed variants
@@ -79,7 +79,7 @@ pkg_tar(
         ":reference_link",
         ":reference_pkg_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 pkg_tar(
@@ -90,7 +90,7 @@ pkg_tar(
         ":reference_link",
         ":reference_pkg_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # Variant with different file for size comparison tests
@@ -112,7 +112,7 @@ pkg_tar(
     srcs = [
         ":modified_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # Variant with different mode for metadata comparison tests
@@ -137,7 +137,7 @@ pkg_tar(
         ":reference_link",
         ":different_mode_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # Variant with different uid/gid for ownership comparison tests
@@ -162,7 +162,7 @@ pkg_tar(
         ":reference_link",
         ":different_owner_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # Variant with different symlink target
@@ -179,7 +179,7 @@ pkg_tar(
         ":modified_link",
         ":reference_pkg_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # Variant with extra file (for "only in got" test)
@@ -205,7 +205,7 @@ pkg_tar(
         ":reference_link",
         ":reference_pkg_files",
     ],
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )
 
 # ============================================================================
@@ -249,5 +249,5 @@ pkg_deb(
     maintainer = "test@test.com",
     package = "testpkg",
     version = "1.0",
-    visibility = ["//tools:__subpackages__"],
+    visibility = ["//contrib/tools:__subpackages__"],
 )

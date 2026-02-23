@@ -16,7 +16,6 @@
 All interfaces are subject to change at any time.
 """
 
-load("@rules_python//python:py_binary.bzl", "py_binary")
 load("@rules_python//python:py_library.bzl", "py_library")
 
 package(

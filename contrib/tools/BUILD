@@ -17,6 +17,7 @@ All interfaces are subject to change at any time.
 """
 
 load("@rules_python//python:py_binary.bzl", "py_binary")
+load("@rules_python//python:py_library.bzl", "py_library")
 load("@rules_python//python:py_test.bzl", "py_test")
 
 package(
@@ -43,7 +44,7 @@ py_binary(
         "cpio-ls.py",
     ],
     deps = [
-        "//tools/lib:cpio",
+        "//contrib/tools/lib:cpio",
     ],
 )
 
@@ -53,7 +54,7 @@ py_binary(
         "rpm2cpio.py",
     ],
     deps = [
-        "//tools/lib:rpm_file",
+        "//contrib/tools/lib:rpm_file",
     ],
 )
 
@@ -63,7 +64,7 @@ py_binary(
         "rpm_build.py",
     ],
     deps = [
-        "//tools/lib:rpm_writer",
+        "//contrib/tools/lib:rpm_writer",
     ],
 )
 
@@ -73,9 +74,9 @@ py_binary(
         "rpm_info.py",
     ],
     deps = [
-        "//tools/lib:cpio",
-        "//tools/lib:in_process_pipe",
-        "//tools/lib:rpm_file",
+        "//contrib/tools/lib:cpio",
+        "//contrib/tools/lib:in_process_pipe",
+        "//contrib/tools/lib:rpm_file",
     ],
 )
 
@@ -85,12 +86,12 @@ py_binary(
         "tree_size_compare.py",
     ],
     deps = [
-        "//tools/lib:deb_reader",
-        "//tools/lib:fs_reader",
-        "//tools/lib:rpm_reader",
-        "//tools/lib:saved_tree",
-        "//tools/lib:tar_reader",
-        "//tools/lib:tree_reader",
+        "//contrib/tools/lib:deb_reader",
+        "//contrib/tools/lib:fs_reader",
+        "//contrib/tools/lib:rpm_reader",
+        "//contrib/tools/lib:saved_tree",
+        "//contrib/tools/lib:tar_reader",
+        "//contrib/tools/lib:tree_reader",
     ],
 )
 
@@ -98,12 +99,12 @@ py_library(
     name = "tree_size_compare_lib",
     srcs = ["tree_size_compare.py"],
     deps = [
-        "//tools/lib:deb_reader",
-        "//tools/lib:fs_reader",
-        "//tools/lib:rpm_reader",
-        "//tools/lib:saved_tree",
-        "//tools/lib:tar_reader",
-        "//tools/lib:tree_reader",
+        "//contrib/tools/lib:deb_reader",
+        "//contrib/tools/lib:fs_reader",
+        "//contrib/tools/lib:rpm_reader",
+        "//contrib/tools/lib:saved_tree",
+        "//contrib/tools/lib:tar_reader",
+        "//contrib/tools/lib:tree_reader",
     ],
 )
 
@@ -111,16 +112,16 @@ py_test(
     name = "readers_test",
     srcs = ["readers_test.py"],
     data = [
-        "//tools/testdata:reference_tar",
-        "//tools/testdata:reference_tar_gz",
-        "//tools/testdata:reference_tar_xz",
-        "//tools/testdata:test_deb",
+        "//contrib/tools/testdata:reference_tar",
+        "//contrib/tools/testdata:reference_tar_gz",
+        "//contrib/tools/testdata:reference_tar_xz",
+        "//contrib/tools/testdata:test_deb",
     ],
     deps = [
-        "//tools/lib:deb_reader",
-        "//tools/lib:in_process_pipe",
-        "//tools/lib:saved_tree",
-        "//tools/lib:tar_reader",
+        "//contrib/tools/lib:deb_reader",
+        "//contrib/tools/lib:in_process_pipe",
+        "//contrib/tools/lib:saved_tree",
+        "//contrib/tools/lib:tar_reader",
         "@rules_python//python/runfiles",
     ],
 )
@@ -129,16 +130,16 @@ py_test(
     name = "compare_test",
     srcs = ["compare_test.py"],
     data = [
-        "//tools/testdata:different_mode_tar",
-        "//tools/testdata:different_owner_tar",
-        "//tools/testdata:different_symlink_tar",
-        "//tools/testdata:extra_file_tar",
-        "//tools/testdata:modified_tar",
-        "//tools/testdata:reference_tar",
+        "//contrib/tools/testdata:different_mode_tar",
+        "//contrib/tools/testdata:different_owner_tar",
+        "//contrib/tools/testdata:different_symlink_tar",
+        "//contrib/tools/testdata:extra_file_tar",
+        "//contrib/tools/testdata:modified_tar",
+        "//contrib/tools/testdata:reference_tar",
     ],
     deps = [
         ":tree_size_compare_lib",
-        "//tools/lib:tar_reader",
+        "//contrib/tools/lib:tar_reader",
         "@rules_python//python/runfiles",
     ],
 )
