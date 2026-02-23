@@ -49,7 +49,6 @@ filegroup(
     ],
 )
 
-
 filegroup(
     name = "rules_pkg_lib",
     srcs = [
