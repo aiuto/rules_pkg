@@ -37,8 +37,9 @@ class ManifestEntry(object):
     uid: int
     gid: int
     origin: str = None
+    repository: str = None
 
-    def __init__(self, type, dest, src, mode, user, group, uid = None, gid = None, origin = None):
+    def __init__(self, type, dest, src, mode, user, group, uid = None, gid = None, origin = None, repository = None):
         self.type = type
         self.dest = dest
         self.src = src
@@ -48,21 +49,21 @@ class ManifestEntry(object):
         self.uid = uid
         self.gid = gid
         self.origin = origin
+        self.repository = repository
 
     def __repr__(self):
         return "ManifestEntry<{}>".format(vars(self))
 
-def read_entries_from(fh):
-    """Return a list of ManifestEntry's from `fh`"""
+def read_entries_from(path):
+    """Return a list of ManifestEntry's from the manifest file at `path`"""
     # Subtle: decode the content with read() rather than in json.load() because
     # the load in older python releases (< 3.7?) does not know how to decode.
-    raw_entries = json.loads(fh.read())
+    # Moreover, prior to Bazel 8 (bazelbuild/bazel#24231), non-ASCII characters
+    # led files to be UTF-16LE-encoded on Windows.
+    with open(path, "rb") as fh:
+        raw = fh.read()
+    raw_entries = json.loads(raw.decode("utf-16-le" if raw[1:2] == b"\0" else "utf-8"))
     return [ManifestEntry(**entry) for entry in raw_entries]
-
-def read_entries_from_file(manifest_path):
-    """Return a list of ManifestEntry's from the manifest file at `path`"""
-    with open(manifest_path, 'r', encoding='utf-8') as fh:
-        return read_entries_from(fh)
 
 def entry_type_to_string(et):
     """Entry type stringifier"""

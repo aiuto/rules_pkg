@@ -36,14 +36,13 @@ from python.runfiles import runfiles
 # https://docs.bazel.build/versions/4.1.0/skylark/rules.html#tools-with-runfiles
 # https://rules-python.readthedocs.io/en/latest/api/py/runfiles/runfiles.runfiles.html
 RUNFILES = runfiles.Create()
-REPOSITORY = RUNFILES.CurrentRepository() or "{WORKSPACE_NAME}"  # the empty string denotes the "_main" repository
 
-def locate(short_path):
-    """Resolve a path relative to the current repository and return its "runfile" location.
+def locate(short_path, repository):
+    """Resolve a path relative to the given repository and return its "runfile" location.
 
     Uses `posixpath` because runfile lookups always use forward slashes, even on Windows.
     """
-    return RUNFILES.Rlocation(posixpath.normpath(posixpath.join(REPOSITORY, short_path)))
+    return RUNFILES.Rlocation(posixpath.normpath(posixpath.join(repository, short_path)))
 
 
 # This is named "NativeInstaller" because it makes use of "native" python
@@ -178,18 +177,12 @@ class NativeInstaller(object):
         self._maybe_make_unowned_dir(os.path.dirname(entry.dest))
         self._do_symlink(entry.src, entry.dest, entry.mode, entry.user, entry.group)
 
-    def include_manifest_path(self, path):
-        with open(path, 'r') as fh:
-            self.include_manifest(fh)
-
-    def include_manifest(self, manifest_fh):
-        manifest_entries = manifest.read_entries_from(manifest_fh)
-
-        for entry in manifest_entries:
+    def include_manifest(self, path):
+        for entry in manifest.read_entries_from(path):
             # Swap out the source with the actual "runfile" location, except for
             # symbolic links as their targets denote installation paths
             if entry.type != manifest.ENTRY_IS_LINK and entry.src is not None:
-                entry.src = locate(entry.src)
+                entry.src = locate(entry.src, entry.repository)
             # Prepend the destdir path to all installation paths, if one is
             # specified.
             if self.destdir is not None:
@@ -289,7 +282,7 @@ def main(args):
         wipe_destdir=args.wipe_destdir,
     )
 
-    installer.include_manifest_path(locate("{MANIFEST_INCLUSION}"))
+    installer.include_manifest(locate("{MANIFEST_INCLUSION}", "{WORKSPACE_NAME}"))
     installer.do_the_thing()
 
 

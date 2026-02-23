@@ -73,7 +73,8 @@ _MappingContext = provider(
     doc = """Fields passed to process_* methods.""",
     fields = {
         "content_map": "in/out The content_map we are building up",
-        "file_deps": "in/out list of file Depsets represented in the map",
+        "file_deps_direct": "in/out list of files represented in the map",
+        "file_deps_transitive": "in/out list of file Depsets represented in the map",
         "label": "ctx.label",
 
         # Behaviors
@@ -119,7 +120,8 @@ def create_mapping_context_from_ctx(
 
     return _MappingContext(
         content_map = dict(),
-        file_deps = list(),
+        file_deps_direct = list(),
+        file_deps_transitive = list(),
         label = label,
         allow_duplicates_with_different_content = allow_duplicates_with_different_content,
         strip_prefix = strip_prefix,
@@ -265,7 +267,7 @@ def process_src(mapping_context, src, origin):
     # Gather the files for every srcs entry here, even if it is not from
     # a pkg_* rule.
     if DefaultInfo in src:
-        mapping_context.file_deps.append(src[DefaultInfo].files)
+        mapping_context.file_deps_transitive.append(src[DefaultInfo].files)
     found_info = False
     if PackageFilesInfo in src:
         _process_pkg_files(
@@ -431,18 +433,16 @@ def add_from_default_info(
 
     if include_runfiles:
         runfiles = src[DefaultInfo].default_runfiles
-        if runfiles and runfiles.files:
-            mapping_context.file_deps.append(runfiles.files)
-
+        if runfiles:
             # Computing the runfiles root is subtle. It should be based off of
             # the executable, but that is not always obvious. When in doubt,
             # the first file of DefaultInfo.files should be the right target.
             base_file = the_executable or all_files[0]
             base_file_path = dest_path(base_file, data_path, data_path_without_prefix)
-            base_path = base_file_path + ".runfiles/" + workspace_name
+            base_root_path = base_file_path + ".runfiles"
+            base_path = base_root_path + "/" + workspace_name
 
-            for rf in runfiles.files.to_list():
-                d_path = mapping_context.path_mapper(base_path + "/" + rf.short_path)
+            def add_mapped_file(d_path, rf):
                 fmode = "0755" if rf == the_executable else mapping_context.default_mode
                 _check_dest(mapping_context.content_map, d_path, rf, src.label, mapping_context.allow_duplicates_with_different_content)
                 if hasattr(rf, "is_symlink") and rf.is_symlink:  # File.is_symlink is Bazel 8+
@@ -463,11 +463,27 @@ def add_from_default_info(
                     gid = mapping_context.default_gid,
                 )
 
+            if runfiles.files:
+                mapping_context.file_deps_transitive.append(runfiles.files)
+                for rf in runfiles.files.to_list():
+                    d_path = mapping_context.path_mapper(base_path + "/" + rf.short_path)
+                    add_mapped_file(d_path, rf)
+            if runfiles.symlinks:
+                for se in runfiles.symlinks.to_list():
+                    mapping_context.file_deps_direct.append(se.target_file)
+                    d_path = mapping_context.path_mapper(base_path + "/" + se.path)
+                    add_mapped_file(d_path, se.target_file)
+            if runfiles.root_symlinks:
+                for se in runfiles.root_symlinks.to_list():
+                    mapping_context.file_deps_direct.append(se.target_file)
+                    d_path = mapping_context.path_mapper(base_root_path + "/" + se.path)
+                    add_mapped_file(d_path, se.target_file)
+
             # if repo_mapping manifest exists (for e.g. with --enable_bzlmod),
             # create _repo_mapping under runfiles directory
             repo_mapping_manifest = get_repo_mapping_manifest(src)
             if repo_mapping_manifest:
-                mapping_context.file_deps.append(depset([repo_mapping_manifest]))
+                mapping_context.file_deps_direct.append(repo_mapping_manifest)
 
                 # TODO: This should really be a symlink into .runfiles/_repo_mapping
                 # that also respects remap_paths. For now this is duplicated with the
@@ -628,15 +644,17 @@ def write_manifest(ctx, manifest_file, content_map, use_short_path = False, pret
         manifest_file,
         "[\n" + ",\n".join(
             [
-                _encode_manifest_entry(dst, content_map[dst], use_short_path, pretty_print)
+                _encode_manifest_entry(ctx, dst, content_map[dst], use_short_path, pretty_print)
                 for dst in sorted(content_map.keys())
             ],
         ) + "\n]\n",
     )
 
-def _encode_manifest_entry(dest, df, use_short_path, pretty_print = False):
+def _encode_manifest_entry(ctx, dest, df, use_short_path, pretty_print = False):
     entry_type = df.entry_type if hasattr(df, "entry_type") else ENTRY_IS_FILE
+    repository = None
     if df.src:
+        repository = (df.src.owner and df.src.owner.repo_name) or ctx.workspace_name
         src = df.src.short_path if use_short_path else df.src.path
         # entry_type is left as-is
 
@@ -667,6 +685,7 @@ def _encode_manifest_entry(dest, df, use_short_path, pretty_print = False):
         "uid": df.uid,
         "gid": df.gid,
         "origin": origin_str,
+        "repository": repository,
     }
 
     if pretty_print:
