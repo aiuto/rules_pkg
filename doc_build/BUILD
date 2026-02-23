@@ -103,6 +103,17 @@ stardoc(
     ],
 )
 
+stardoc(
+    name = "pkg_install",
+    out = "pkg_install.md",
+    input = "//pkg:install.bzl",
+    deps = [
+        "//pkg:rules_pkg_lib",
+        "@bazel_skylib//rules:common_settings",
+        "@rules_python//python:defs_bzl",
+    ],
+)
+
 py_binary(
     name = "merge",
     srcs = ["merge.py"],
