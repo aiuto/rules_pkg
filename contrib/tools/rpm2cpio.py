@@ -23,7 +23,7 @@ Gleaned from: http://ftp.rpm.org/max-rpm/s1-rpm-file-format-rpm-file-format.html
 import argparse
 import sys
 
-from tools.lib.rpm_file import RpmFileReader
+from contrib.tools.lib.rpm_file import RpmFileReader
 
 
 def main(args):

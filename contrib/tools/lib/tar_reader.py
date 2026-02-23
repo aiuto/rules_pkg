@@ -2,7 +2,7 @@
 
 import tarfile
 
-from tools.lib.tree_reader import FileInfo, TreeReader
+from contrib.tools.lib.tree_reader import FileInfo, TreeReader
 
 
 class TarReader(TreeReader):

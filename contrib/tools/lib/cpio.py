@@ -24,7 +24,7 @@ Decent docs at
 https://github.com/libyal/dtformats/blob/main/documentation/Copy%20in%20and%20out%20(CPIO)%20archive%20format.asciidoc
 """
 
-from tools.lib.tree_reader import FileInfo
+from contrib.tools.lib.tree_reader import FileInfo
 
 DEBUG = 0
 

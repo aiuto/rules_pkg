@@ -2,9 +2,9 @@ import io
 import lzma
 import threading
 
-from tools.lib.in_process_pipe import InProcessPipe
-from tools.lib.tar_reader import TarReader
-from tools.lib.tree_reader import FileInfo, TreeReader
+from contrib.tools.lib.in_process_pipe import InProcessPipe
+from contrib.tools.lib.tar_reader import TarReader
+from contrib.tools.lib.tree_reader import FileInfo, TreeReader
 
 BLOCKSIZE = 65536
 

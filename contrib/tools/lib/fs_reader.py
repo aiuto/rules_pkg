@@ -2,7 +2,7 @@
 
 import os
 
-from tools.lib.tree_reader import FileInfo, TreeReader
+from contrib.tools.lib.tree_reader import FileInfo, TreeReader
 
 
 class FileSystemReader(TreeReader):

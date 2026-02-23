@@ -5,7 +5,7 @@ This is mini-tool to ilst the paths in a cpio archive.
 
 import sys
 
-from tools.lib.cpio import CpioReader
+from contrib.tools.lib.cpio import CpioReader
 
 
 def lscpio(cpio):
