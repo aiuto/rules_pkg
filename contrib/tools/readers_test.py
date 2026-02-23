@@ -21,9 +21,9 @@ import unittest
 
 from python.runfiles import runfiles
 
-from tools.lib.deb_reader import DebReader
-from tools.lib.saved_tree import SavedTreeReader
-from tools.lib.tar_reader import TarReader
+from contrib.tools.lib.deb_reader import DebReader
+from contrib.tools.lib.saved_tree import SavedTreeReader
+from contrib.tools.lib.tar_reader import TarReader
 
 
 def get_runfile(path):
@@ -48,7 +48,7 @@ class TarReaderTest(unittest.TestCase):
 
     def test_tar_reader_loads_reference(self):
         """TarReader can load the reference tar file."""
-        tar_path = get_runfile("tools/testdata/reference_tar.tar")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
         reader = TarReader(tar_path=tar_path)
         tree = load_tree_as_dict(reader)
 
@@ -59,7 +59,7 @@ class TarReaderTest(unittest.TestCase):
 
     def test_tar_gz_reader_loads_reference(self):
         """TarReader can load gzip-compressed tar."""
-        tar_path = get_runfile("tools/testdata/reference_tar_gz.tar.gz")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar_gz.tar.gz")
         reader = TarReader(tar_path=tar_path)
         tree = load_tree_as_dict(reader)
 
@@ -68,7 +68,7 @@ class TarReaderTest(unittest.TestCase):
 
     def test_tar_xz_reader_loads_reference(self):
         """TarReader can load xz-compressed tar."""
-        tar_path = get_runfile("tools/testdata/reference_tar_xz.tar.xz")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar_xz.tar.xz")
         reader = TarReader(tar_path=tar_path)
         tree = load_tree_as_dict(reader)
 
@@ -76,9 +76,9 @@ class TarReaderTest(unittest.TestCase):
 
     def test_tar_formats_produce_same_content(self):
         """All tar compression formats produce the same logical tree."""
-        tar_path = get_runfile("tools/testdata/reference_tar.tar")
-        gz_path = get_runfile("tools/testdata/reference_tar_gz.tar.gz")
-        xz_path = get_runfile("tools/testdata/reference_tar_xz.tar.xz")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        gz_path = get_runfile("contrib/tools/testdata/reference_tar_gz.tar.gz")
+        xz_path = get_runfile("contrib/tools/testdata/reference_tar_xz.tar.xz")
 
         tree_tar = load_tree_as_dict(TarReader(tar_path=tar_path))
         tree_gz = load_tree_as_dict(TarReader(tar_path=gz_path))
@@ -97,7 +97,7 @@ class TarReaderTest(unittest.TestCase):
 
     def test_paths_have_no_dot_slash_prefix(self):
         """TarReader strips the ./ prefix from paths."""
-        tar_path = get_runfile("tools/testdata/reference_tar.tar")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
         tree = load_tree_as_dict(TarReader(tar_path=tar_path))
 
         for path in tree:
@@ -106,7 +106,7 @@ class TarReaderTest(unittest.TestCase):
 
     def test_symlink_properties(self):
         """Symlinks are correctly identified."""
-        tar_path = get_runfile("tools/testdata/reference_tar.tar")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
         tree = load_tree_as_dict(TarReader(tar_path=tar_path))
 
         link = tree["link_to_hello"]
@@ -116,7 +116,7 @@ class TarReaderTest(unittest.TestCase):
 
     def test_directory_properties(self):
         """Directories are correctly identified."""
-        tar_path = get_runfile("tools/testdata/reference_tar.tar")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
         tree = load_tree_as_dict(TarReader(tar_path=tar_path))
 
         subdir = tree["subdir"]
@@ -130,7 +130,7 @@ class SavedTreeReaderTest(unittest.TestCase):
 
     def test_save_and_load_json(self):
         """SavedTreeReader can load a tree saved as JSON."""
-        tar_path = get_runfile("tools/testdata/reference_tar.tar")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
         tree = load_tree_as_dict(TarReader(tar_path=tar_path))
 
         # Convert to list of dicts for saving
@@ -174,7 +174,7 @@ class DebReaderTest(unittest.TestCase):
 
     def test_deb_reader_loads_package(self):
         """DebReader can load a .deb package."""
-        deb_path = get_runfile("tools/testdata/test_deb.deb")
+        deb_path = get_runfile("contrib/tools/testdata/test_deb.deb")
         reader = DebReader(deb_path)
         tree = load_tree_as_dict(reader)
 
@@ -184,7 +184,7 @@ class DebReaderTest(unittest.TestCase):
 
     def test_deb_reader_symlinks(self):
         """DebReader correctly identifies symlinks in .deb."""
-        deb_path = get_runfile("tools/testdata/test_deb.deb")
+        deb_path = get_runfile("contrib/tools/testdata/test_deb.deb")
         reader = DebReader(deb_path)
         tree = load_tree_as_dict(reader)
 
@@ -196,7 +196,7 @@ class DebReaderTest(unittest.TestCase):
 
     def test_deb_reader_paths_normalized(self):
         """DebReader paths have no ./ prefix."""
-        deb_path = get_runfile("tools/testdata/test_deb.deb")
+        deb_path = get_runfile("contrib/tools/testdata/test_deb.deb")
         reader = DebReader(deb_path)
         tree = load_tree_as_dict(reader)
 

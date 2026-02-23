@@ -30,7 +30,7 @@ import stat
 import struct
 import time
 
-from tools.lib.cpio_writer import CpioWriter
+from contrib.tools.lib.cpio_writer import CpioWriter
 
 
 # RPM Lead constants

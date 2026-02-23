@@ -18,8 +18,8 @@ import unittest
 
 from python.runfiles import runfiles
 
-from tools.lib.tar_reader import TarReader
-from tools.tree_size_compare import (
+from contrib.tools.lib.tar_reader import TarReader
+from contrib.tools.tree_size_compare import (
     stream_compare,
     load_tree_from_reader,
     check_size_threshold,
@@ -63,7 +63,7 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_identical(self):
         """stream_compare reports no differences for identical trees."""
-        tar_path = get_runfile("tools/testdata/reference_tar.tar")
+        tar_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=tar_path))
         got_reader = TarReader(tar_path=tar_path)
@@ -78,8 +78,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_missing_files(self):
         """stream_compare detects files only in expected."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        mod_path = get_runfile("tools/testdata/modified_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        mod_path = get_runfile("contrib/tools/testdata/modified_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=mod_path)
@@ -93,8 +93,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_extra_files(self):
         """stream_compare detects files only in got."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        extra_path = get_runfile("tools/testdata/extra_file_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        extra_path = get_runfile("contrib/tools/testdata/extra_file_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=extra_path)
@@ -106,8 +106,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_mode_change(self):
         """stream_compare detects mode changes."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        diff_path = get_runfile("tools/testdata/different_mode_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        diff_path = get_runfile("contrib/tools/testdata/different_mode_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=diff_path)
@@ -120,8 +120,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_uid_gid_change(self):
         """stream_compare detects uid/gid changes when enabled."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        diff_path = get_runfile("tools/testdata/different_owner_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        diff_path = get_runfile("contrib/tools/testdata/different_owner_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=diff_path)
@@ -134,8 +134,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_uid_gid_ignored(self):
         """stream_compare ignores uid/gid changes when disabled."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        diff_path = get_runfile("tools/testdata/different_owner_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        diff_path = get_runfile("contrib/tools/testdata/different_owner_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=diff_path)
@@ -147,8 +147,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_symlink_target_change(self):
         """stream_compare detects symlink target changes."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        diff_path = get_runfile("tools/testdata/different_symlink_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        diff_path = get_runfile("contrib/tools/testdata/different_symlink_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=diff_path)
@@ -164,8 +164,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_include_pattern(self):
         """stream_compare respects include patterns."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        extra_path = get_runfile("tools/testdata/extra_file_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        extra_path = get_runfile("contrib/tools/testdata/extra_file_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=extra_path)
@@ -184,8 +184,8 @@ class StreamCompareTest(unittest.TestCase):
 
     def test_stream_compare_exclude_pattern(self):
         """stream_compare respects exclude patterns."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        extra_path = get_runfile("tools/testdata/extra_file_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        extra_path = get_runfile("contrib/tools/testdata/extra_file_tar.tar")
 
         expected = load_tree_from_reader(TarReader(tar_path=ref_path))
         got_reader = TarReader(tar_path=extra_path)
@@ -319,8 +319,8 @@ class MetadataDetectionTest(unittest.TestCase):
 
     def test_detects_missing_file(self):
         """Detects files in expected but not in got."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        mod_path = get_runfile("tools/testdata/modified_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        mod_path = get_runfile("contrib/tools/testdata/modified_tar.tar")
 
         expected = load_tree_as_dict(TarReader(tar_path=ref_path))
         got = load_tree_as_dict(TarReader(tar_path=mod_path))
@@ -333,8 +333,8 @@ class MetadataDetectionTest(unittest.TestCase):
 
     def test_detects_extra_file(self):
         """Detects files in got but not in expected."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        extra_path = get_runfile("tools/testdata/extra_file_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        extra_path = get_runfile("contrib/tools/testdata/extra_file_tar.tar")
 
         expected = load_tree_as_dict(TarReader(tar_path=ref_path))
         got = load_tree_as_dict(TarReader(tar_path=extra_path))
@@ -344,8 +344,8 @@ class MetadataDetectionTest(unittest.TestCase):
 
     def test_detects_mode_change(self):
         """Detects files with different mode."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        diff_path = get_runfile("tools/testdata/different_mode_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        diff_path = get_runfile("contrib/tools/testdata/different_mode_tar.tar")
 
         expected = load_tree_as_dict(TarReader(tar_path=ref_path))
         got = load_tree_as_dict(TarReader(tar_path=diff_path))
@@ -355,8 +355,8 @@ class MetadataDetectionTest(unittest.TestCase):
 
     def test_detects_owner_change(self):
         """Detects files with different uid/gid."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        diff_path = get_runfile("tools/testdata/different_owner_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        diff_path = get_runfile("contrib/tools/testdata/different_owner_tar.tar")
 
         expected = load_tree_as_dict(TarReader(tar_path=ref_path))
         got = load_tree_as_dict(TarReader(tar_path=diff_path))
@@ -367,8 +367,8 @@ class MetadataDetectionTest(unittest.TestCase):
 
     def test_detects_symlink_target_change(self):
         """Detects symlinks with different targets."""
-        ref_path = get_runfile("tools/testdata/reference_tar.tar")
-        diff_path = get_runfile("tools/testdata/different_symlink_tar.tar")
+        ref_path = get_runfile("contrib/tools/testdata/reference_tar.tar")
+        diff_path = get_runfile("contrib/tools/testdata/different_symlink_tar.tar")
 
         expected = load_tree_as_dict(TarReader(tar_path=ref_path))
         got = load_tree_as_dict(TarReader(tar_path=diff_path))

@@ -2,7 +2,7 @@
 
 import json
 
-from tools.lib.tree_reader import FileInfo, TreeReader
+from contrib.tools.lib.tree_reader import FileInfo, TreeReader
 
 
 def write_tree(output_file: str, items) -> None:

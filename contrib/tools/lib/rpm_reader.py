@@ -3,10 +3,10 @@
 import io
 import threading
 
-from tools.lib.cpio import CpioReader
-from tools.lib.in_process_pipe import InProcessPipe
-from tools.lib.rpm_file import RpmFileReader
-from tools.lib.tree_reader import FileInfo, TreeReader
+from contrib.tools.lib.cpio import CpioReader
+from contrib.tools.lib.in_process_pipe import InProcessPipe
+from contrib.tools.lib.rpm_file import RpmFileReader
+from contrib.tools.lib.tree_reader import FileInfo, TreeReader
 
 
 class RpmReader(TreeReader):

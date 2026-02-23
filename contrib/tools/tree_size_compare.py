@@ -10,12 +10,12 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from pathlib import Path
 
-from tools.lib.tree_reader import FileInfo, TreeReader
-from tools.lib.deb_reader import DebReader
-from tools.lib.fs_reader import FileSystemReader
-from tools.lib.rpm_reader import RpmReader
-from tools.lib.tar_reader import TarReader
-from tools.lib.saved_tree import SavedTreeReader, write_tree
+from contrib.tools.lib.tree_reader import FileInfo, TreeReader
+from contrib.tools.lib.deb_reader import DebReader
+from contrib.tools.lib.fs_reader import FileSystemReader
+from contrib.tools.lib.rpm_reader import RpmReader
+from contrib.tools.lib.tar_reader import TarReader
+from contrib.tools.lib.saved_tree import SavedTreeReader, write_tree
 
 
 class InputFactory:
