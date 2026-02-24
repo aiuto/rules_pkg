@@ -627,7 +627,7 @@ class DmgReader(TreeReader):
                     entry = pkg.next()
                     if entry is None:
                         break
-                    entry.path = pkg_path + "/" + entry.path
+                    entry.path = "@PKG@/" + entry.path
                     self.items.append(entry)
             except Exception as e:
                 print(
