@@ -93,16 +93,16 @@ class CpioReader(object):
         # Then filesize bytes of file content. No alignment padding in odc.
 
         assert magic[0:5] == b"07070"
-        _dev = self.read_ascii_int(size=6)
-        inode = self.read_ascii_int(size=6)
-        mode = self.read_ascii_int(size=6)
-        uid = self.read_ascii_int(size=6)
-        gid = self.read_ascii_int(size=6)
-        _nlinks = self.read_ascii_int(size=6)
-        _rdev = self.read_ascii_int(size=6)
-        _mtime = self.read_ascii_int(size=11)
-        name_size = self.read_ascii_int(size=6)
-        file_size = self.read_ascii_int(size=11)
+        _dev = self.read_ascii_int(size=6, base=8)
+        inode = self.read_ascii_int(size=6, base=8)
+        mode = self.read_ascii_int(size=6, base=8)
+        uid = self.read_ascii_int(size=6, base=8)
+        gid = self.read_ascii_int(size=6, base=8)
+        _nlinks = self.read_ascii_int(size=6, base=8)
+        _rdev = self.read_ascii_int(size=6, base=8)
+        _mtime = self.read_ascii_int(size=11, base=8)
+        name_size = self.read_ascii_int(size=6, base=8)
+        file_size = self.read_ascii_int(size=11, base=8)
 
         if DEBUG > 1:
             print(f"odc: inode={inode}, mode={mode:o}, size={file_size}")
