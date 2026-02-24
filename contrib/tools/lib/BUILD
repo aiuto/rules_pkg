@@ -53,6 +53,17 @@ py_library(
 )
 
 py_library(
+    name = "dmg_reader",
+    srcs = [
+        "dmg_reader.py",
+    ],
+    deps = [
+        ":pkg_reader",
+        ":tree_reader",
+    ],
+)
+
+py_library(
     name = "fs_reader",
     srcs = [
         "fs_reader.py",
@@ -65,6 +76,14 @@ py_library(
     srcs = [
         "in_process_pipe.py",
     ],
+)
+
+py_library(
+    name = "pkg_reader",
+    srcs = [
+        "pkg_reader.py",
+    ],
+    deps = [":tree_reader"],
 )
 
 py_library(

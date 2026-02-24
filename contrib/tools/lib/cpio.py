@@ -60,6 +60,10 @@ class CpioReader(object):
             return -1
 
     def read_header_and_content_size(self):
+        # 0      string          070707          ASCII cpio archive (pre-SVR4 or odc)
+        # 0      string          070701          ASCII cpio archive (SVR4 with no CRC)
+        # 0      string          070702          ASCII cpio archive (SVR4 with CRC)
+        # 0      short           0143561         byte-swapped cpio archive
         first_6 = self.stream.read(6)
         if DEBUG > 1:
             print("Got header", first_6)
@@ -73,13 +77,8 @@ class CpioReader(object):
             return self.read_newc_ascii_header(magic=first_6)
 
     def read_odc_ascii_header(self, magic):
-        # """
+        # odc (Portable ASCII) format:
         # 6	magic	Magic number 070707
-        # /usr/share/file/magic/archive:0	short		070707		cpio archive
-        # /usr/share/file/magic/archive:0	short		0143561		byte-swapped cpio archive
-        # /usr/share/file/magic/archive:0	string		070707		ASCII cpio archive (pre-SVR4 or odc)
-        # /usr/share/file/magic/archive:0	string		070701		ASCII cpio archive (SVR4 with no CRC)
-        # /usr/share/file/magic/archive:0	string		070702		ASCII cpio archive (SVR4 with CRC)
         # 6	dev	Device where file resides
         # 6	ino	I-number of file
         # 6	mode	File mode
@@ -90,24 +89,62 @@ class CpioReader(object):
         # 11	mtime	Modify time of file
         # 6	namesize	Length of file name
         # 11	filesize	Length of file
-        # After the header information, namesize bytes of path name is stored. namesize includes the null
-        # byte of the end of the path name. After this, filesize bytes of the file contents are recorded.
+        # After the header, namesize bytes of path name (including NUL).
+        # Then filesize bytes of file content. No alignment padding in odc.
 
         assert magic[0:5] == b"07070"
-        magic = int(magic.decode("ASCII"))
-        dev = self.read_ascii_int(size=6)
+        _dev = self.read_ascii_int(size=6)
         inode = self.read_ascii_int(size=6)
         mode = self.read_ascii_int(size=6)
-        _uid = self.read_ascii_int(size=6)
-        _gid = self.read_ascii_int(size=6)
+        uid = self.read_ascii_int(size=6)
+        gid = self.read_ascii_int(size=6)
         _nlinks = self.read_ascii_int(size=6)
         _rdev = self.read_ascii_int(size=6)
-        if DEBUG > 1:
-            print(f"magic: {magic}, dev/node: {dev}/{inode} mode: {mode:o}")
+        _mtime = self.read_ascii_int(size=11)
         name_size = self.read_ascii_int(size=6)
-        file_size = self.read_ascii_int(size=6)
-        # TODO: Make an info.
-        return 0, file_size
+        file_size = self.read_ascii_int(size=11)
+
+        if DEBUG > 1:
+            print(f"odc: inode={inode}, mode={mode:o}, size={file_size}")
+
+        # Read the path name (name_size includes trailing NUL)
+        raw_path = self.stream.read(name_size)
+        try:
+            path = raw_path[: (name_size - 1)].decode("utf-8").removeprefix("./")
+        except Exception:
+            path = str(raw_path[: (name_size - 1)])
+
+        if path == "TRAILER!!!":
+            return None, -1
+
+        # Determine file type from mode
+        file_type = mode & 0o170000
+        is_dir = file_type == 0o040000
+        is_symlink = file_type == 0o120000
+
+        # odc has no alignment padding — data_size is exact file_size
+        data_size = file_size
+
+        # Read symlink targets from file data
+        symlink_target = None
+        if is_symlink and file_size > 0:
+            file_content = self.stream.read(file_size)
+            symlink_target = file_content[:file_size].decode("utf-8", errors="replace")
+            data_size = -1  # signal that we have read the content
+
+        info = FileInfo(
+            path=path,
+            size=0 if (is_dir or is_symlink) else file_size,
+            uid=uid,
+            gid=gid,
+            mode=mode,
+            is_dir=is_dir,
+            is_symlink=is_symlink,
+            symlink_target=symlink_target,
+            inode=inode,
+            data_size=data_size,
+        )
+        return info, data_size
 
     def read_newc_ascii_header(self, magic):
         # Size	Description

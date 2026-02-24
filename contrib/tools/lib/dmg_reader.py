@@ -16,6 +16,7 @@ import struct
 import sys
 import zlib
 
+from contrib.tools.lib.pkg_reader import PkgReader
 from contrib.tools.lib.tree_reader import FileInfo, TreeReader
 
 
@@ -474,11 +475,26 @@ class HfsPlusReader:
             gid = _read_u32(node, data_off + 36)
             file_mode = _read_u16(node, data_off + 42)
             data_fork_size = _read_u64(node, data_off + 88)
+            # Data fork extents start at offset 96 within the record data
+            # (88 + 8 for logicalSize). Each extent: startBlock(4), blockCount(4)
+            # clumpSize(4) + totalBlocks(4) = 8 bytes, then extents at +104
+            extents = []
+            ext_base = data_off + 88 + 16  # past logicalSize + clumpSize + totalBlocks
+            for ei in range(8):
+                eo = ext_base + ei * 8
+                if eo + 8 > len(node):
+                    break
+                sb = _read_u32(node, eo)
+                bc = _read_u32(node, eo + 4)
+                if bc == 0:
+                    break
+                extents.append((sb, bc))
             self.entries[cnid] = (parent_cnid, name, FILE_RECORD, {
                 "mode": file_mode,
                 "uid": uid,
                 "gid": gid,
                 "size": data_fork_size,
+                "extents": extents,
             })
 
         # Thread records (types 3, 4) are reverse lookups — skip them.
@@ -497,6 +513,22 @@ class HfsPlusReader:
             current = parent_cnid
         parts.reverse()
         return "/".join(parts)
+
+    def read_file(self, cnid: int) -> bytes:
+        """Read file content for a given CNID using its data fork extents."""
+        if cnid not in self.entries:
+            raise ValueError(f"CNID {cnid} not found")
+        _, _, rec_type, info = self.entries[cnid]
+        if rec_type != FILE_RECORD:
+            raise ValueError(f"CNID {cnid} is not a file")
+        extents = info.get("extents", [])
+        logical_size = info.get("size", 0)
+        data = bytearray()
+        for start_block, block_count in extents:
+            offset = start_block * self.block_size
+            length = block_count * self.block_size
+            data.extend(self.image[offset:offset + length])
+        return bytes(data[:logical_size])
 
     def get_all_files(self) -> list:
         """Return list of FileInfo for all files/dirs/symlinks in the volume."""
@@ -580,6 +612,30 @@ class DmgReader(TreeReader):
         # 2. Walk HFS+ catalog
         hfs = HfsPlusReader(image)
         self.items = hfs.get_all_files()
+
+        # 3. Recurse into .pkg files
+        for cnid, (parent_cnid, name, rec_type, info) in hfs.entries.items():
+            if rec_type != FILE_RECORD or not name.endswith(".pkg"):
+                continue
+            pkg_path = hfs.build_path(cnid)
+            try:
+                pkg_bytes = hfs.read_file(cnid)
+                if not pkg_bytes or pkg_bytes[:4] != b"xar!":
+                    continue
+                pkg = PkgReader(pkg_data=pkg_bytes)
+                while True:
+                    entry = pkg.next()
+                    if entry is None:
+                        break
+                    entry.path = pkg_path + "/" + entry.path
+                    self.items.append(entry)
+            except Exception as e:
+                print(
+                    f"WARNING: Failed to read pkg {pkg_path}: {e}",
+                    file=sys.stderr,
+                )
+
+        self.items.sort(key=lambda x: x.path)
 
     def next(self) -> FileInfo:
         if self.index < len(self.items):

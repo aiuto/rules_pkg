@@ -63,6 +63,7 @@ py_binary(
     ],
     deps = [
         "//contrib/tools/lib:deb_reader",
+        "//contrib/tools/lib:dmg_reader",
         "//contrib/tools/lib:fs_reader",
         "//contrib/tools/lib:rpm_reader",
         "//contrib/tools/lib:saved_tree",

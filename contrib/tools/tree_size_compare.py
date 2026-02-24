@@ -8,6 +8,7 @@ import sys
 from contrib.tools.lib.tree_reader import FileInfo, TreeReader
 from contrib.tools.lib.deb_reader import DebReader
 from contrib.tools.lib.dmg_reader import DmgReader
+from contrib.tools.lib.pkg_reader import PkgReader
 from contrib.tools.lib.fs_reader import FileSystemReader
 from contrib.tools.lib.rpm_reader import RpmReader
 from contrib.tools.lib.tar_reader import TarReader
@@ -44,6 +45,8 @@ class InputFactory:
             return RpmReader(path)
         elif path.endswith(".dmg"):
             return DmgReader(path)
+        elif path.endswith(".pkg"):
+            return PkgReader(path)
         elif path.endswith((".tar", ".tar.gz", ".tar.bz2", ".tar.xz", ".tgz")):
             return TarReader(path)
         elif os.path.isdir(path):
